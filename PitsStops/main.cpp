@@ -2,17 +2,12 @@
 
 void printArray(double *array, const int n);
 void initializationArray(double *array, const int n);
-void initializationIntervals(double *array, double *pitstops, const int n);
+void initializationIntervals(double *array, double *pitstops, const int n, int dist);
 void sorting(double *array, const int n);
 double searchMax(double *pitstops, const int n, int dist);
 
 int main()
 {
-
-//    const int n = 4;
-//    double pitstops[n] = {4.5, 0.5, 2, 1};
-//    int dist = 5;
-
     int dist=0;
     std::cout << "enter tracker length " << std::endl;
     std::cin >> dist;
@@ -72,12 +67,13 @@ void initializationArray(double *array, const int n)
     }
 }
 
-void initializationIntervals(double *intervals, double *pitstops, const int n)
+void initializationIntervals(double *intervals, double *pitstops, const int n, int dist)
 {
     for (int i = 0; i < n-1; ++i)
     {
         intervals[i] = pitstops[i+1] - pitstops[i];
     }
+    intervals[n-1] = pitstops[0] + dist - pitstops[n-1];
     //std::cout << std::endl;
 }
 
@@ -86,7 +82,7 @@ double searchMax(double *pitstops, const int n, int dist)
     if (n>1)
     {
         double intervals[n-1];
-        initializationIntervals(intervals, pitstops, n);
+        initializationIntervals(intervals, pitstops, n, dist);
 
         double max = intervals[0];
         for (int i = 1; i < n; ++i)
@@ -94,19 +90,11 @@ double searchMax(double *pitstops, const int n, int dist)
             if(intervals[i] > max)
                 max = intervals[i];
         }
-
         return max/2;
     }
     else
     {
-        if (dist - pitstops[0] > pitstops[0])
-        {
-            return (dist - pitstops[0])/2;
-        }
-        else
-        {
-            return pitstops[0]/2;
-        }
+        return dist/2.;
     }
 }
 
