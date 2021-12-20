@@ -46,11 +46,10 @@ int main(int argc, char *argv[])
             }
             //values[j] = str.toDouble();
             //std::cout << values[j] << std::endl;
-            ++j;
 
             values.push_back(str.toDouble());
             std::cout << values[j] << std::endl;
-            ///values.push_back(str.toDouble());
+            ++j;
         }
 
         file.close();
