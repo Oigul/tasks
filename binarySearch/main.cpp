@@ -5,150 +5,122 @@
 
 #include <iostream>
 
-//открыть большой файл
+//2.6643227 - почему-то зацикливается
+//в if -1
 
-void mergeSort(std::vector<double> &vector, const int n, int left, int right);
-int binarySearch(std::vector<double> &vector, const int n, double requiredNumber, int begin, int finish);
-
-void printArray(double *array, const int n);
-void mergeSort(double *array, const int n, int left, int right);
-int binarySearch(double *array, const int n, double requiredNumber, int begin, int finish);
+int binarySearch(QFile& file, double requiredNumber, int begin, int finish);
 
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
-    QFile file("C:\\trash\\dataset_sorted.csv");
-    //QFile file("C:\\trash\\list.csv");
-
-    const int n = 9;
-    //double values[n];
-    std::vector<double> values;
-
-    if ((file.exists())&&(file.open(QIODevice::ReadOnly)))
-    {
-        int j = 0;
-        QString str=file.readLine();
-        //for(int k = 0; k < n; ++k)
-        while (!file.atEnd())
-        {
-            str=file.readLine();
-            QString value="";
-            QString::iterator s = str.begin();
-            while (*s == '.' || (*s >= '0' && *s <= '9'))
-            {
-                ++s;
-            }
-            while(s != str.end())
-            {
-                *s = ' ';
-                ++s;
-            }
-            //values[j] = str.toDouble();
-            //std::cout << values[j] << std::endl;
-
-            values.push_back(str.toDouble());
-            std::cout << values[j] << std::endl;
-            ++j;
-        }
-
-        file.close();
-    }
-
-    std::cout << std::endl;
-    //printArray(values, n);
-    mergeSort(values, n, 0, n);
-    std::cout << std::endl;
-    //printArray(values, n);
+    //QString pathToFile = "C:\\trash\\list.csv";
+    QString pathToFile = "C:\\trash\\dataset_sorted.csv";
+    QFile file(pathToFile);
 
     double requiredNumber;
     std::cout << std::endl << "enter the required number " << std::endl;
     std::cin >> requiredNumber;
-    int requiredNumberIndex = binarySearch(values, n-1, requiredNumber, 0, n-1);
+    int requiredNumberIndex;
+    int fileSize = 0;
 
-    if(requiredNumberIndex >= 0)
+    if ((file.exists())&&(file.open(QIODevice::ReadOnly)))
     {
-        std::cout << "there is the number in the array" << " \n";
-    }
-    else
-    {
-        std::cout << "there is not the number in the array" << std::endl;
+        QString maxNumber;
+        while (!file.atEnd())
+        {
+            maxNumber = file.readLine();
+            ++fileSize;
+        }
+
+        std::cout << "maxNumber =" << maxNumber.toStdString() << std::endl;
+
+        file.close();
+
+        //std::cout << fileSize<< std::endl;
+
+        if ((file.exists())&&(file.open(QIODevice::ReadOnly)))
+        {
+            requiredNumberIndex = binarySearch(file, requiredNumber, 0, fileSize);
+            std::cout << "requiredNumberIndex in if = " << requiredNumberIndex << " \n";
+            int a = 0;
+        }
+
+        if(requiredNumberIndex >= 0)
+        {
+            std::cout << "there is the number in the array" << " \n";
+            std::cout << "requiredNumberIndex = " << requiredNumberIndex << " \n";
+        }
+        else
+        {
+            std::cout << "there is not the number in the array" << std::endl;
+        }
     }
 
     return a.exec();
 }
 
-void printArray(double *array, const int n)
-{
-    //cout << "printArray" << endl;
-    for (int i = 0; i < n; ++i)
-    {
-        std::cout << array[i] << " ";
-    }
-    std::cout << std::endl;
-}
-
-void mergeSort(std::vector<double> &vector, const int n, int left, int right)
-{
-    //std::cout << "mergeSort" << std::endl;
-
-    if (left<right) //граничное условие
-    {
-        int middle = (left+right)/2;
-        mergeSort(vector, n, left, middle);
-        mergeSort(vector, n, middle+1, right);
-
-        int n1 = middle-left+1;
-        int n2 = right-middle;
-        std::vector<double> tmpLeft;
-        std::vector<double> tmpRight;
-        for(int i=0; i<n1; ++i)
-            tmpLeft.push_back(vector[left+i]);
-
-        for(int i=0; i<n2; ++i)
-        {
-            if(middle+i+1 < n)
-                tmpRight.push_back(vector[middle+i+1]);
-        }
-
-        /*int max = searchMax(array, n);
-        tmpLeft.push_back(max+1);
-        tmpRight.push_back(max+1);*/
-        tmpLeft.push_back(100);
-        tmpRight.push_back(100);
-
-        int i=0, j=0;
-        for(int k = left; k<=right; ++k)
-        {
-            if(tmpLeft[i] <= tmpRight[j])
-            {
-                vector[k] = tmpLeft[i];
-                ++i;
-            } else
-            {
-                vector[k] = tmpRight[j];
-                ++j;
-            }
-        }
-    }
-}
-
-int binarySearch(std::vector<double> &vector, const int n, double requiredNumber, int begin, int finish)
+int binarySearch(QFile &file, double requiredNumber, int begin, int finish)
 {
     int middle = (begin+finish)/2;
+    static bool left = true;
 
-    if (vector[middle] == requiredNumber)
+    std::cout << middle << " ";
+
+    if (left)
     {
+        for(int i = 0; i < middle-1; ++i)
+        {
+            file.readLine();
+        }
+    }
+    else
+    {
+        for(int i = begin; i <= middle-1; ++i)
+        {
+            QString forStr=file.readLine();
+            int a = 0;
+        }
+
+    }
+
+    QString str=file.readLine();
+    double middleValue;
+    QString::iterator s = str.begin();
+    while (*s == '.' || (*s >= '0' && *s <= '9'))
+    {
+        ++s;
+    }
+    while(s != str.end())
+    {
+        *s = ' ';
+        ++s;
+    }
+    middleValue = str.toDouble();
+    std::cout << middleValue << std::endl;
+
+    if (middleValue == requiredNumber)
+    {
+        std::cout << "return " << middle << " \n";
         return middle;
     }
 
     if (begin == finish)
     {
+        std::cout << "return -1" << " \n";
         return -1;
     }
 
-    if (vector[middle] > requiredNumber)
-        binarySearch(vector, n, requiredNumber, begin, middle-1);
-    else
-        binarySearch(vector, n, requiredNumber, middle+1, finish);
+    if (requiredNumber < middleValue)
+    {
+        left = true;
+        file.close();
+        if ((file.exists())&&(file.open(QIODevice::ReadOnly)))
+            binarySearch(file, requiredNumber, begin, middle-1);
+    }
+        else
+    {
+        left = false;
+        binarySearch(file, requiredNumber, middle+1, finish);
+    }
 }
