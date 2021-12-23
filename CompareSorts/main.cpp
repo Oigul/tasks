@@ -8,6 +8,7 @@ void mergeSort(int *array, const int n, int left, int right);
 std::string result(double timeInsertionSort, double timeMergeSort);
 int searchMax(int *array, const int n);
 
+// As far as I remember we can use time_t (#include <time.h>) instead of the class specifically for the timer.
 class Timer
 {
 private:
@@ -36,6 +37,9 @@ public:
     }
 };
 
+//I'd like to see right here the file which is being created by your programm and filled by random().
+// When the file will be filled you can read the numbers from there. You can create file every time
+// when you run your programm.
 int main()
 {
     Timer t;
@@ -157,7 +161,7 @@ void printVector(std::vector<int> tmp, const int n)
 
 std::string result(double timeInsertionSort, double timeMergeSort)
 {
-    if (timeMergeSort<timeInsertionSort)
+    if (timeMergeSort < timeInsertionSort)
     {
         return "Merge sort is faster than insert sort ";
     }
@@ -184,7 +188,7 @@ void insertionSort(int *array, const int n)
         int key = array[j];
         int i = j-1;
 
-        while(i>0 && array[i]>key)
+        while(i > 0 && array[i] > key)
         {
             array[i+1] = array[i];
             --i;
@@ -197,22 +201,22 @@ void mergeSort(int *array, const int n, int left, int right)
 {
     //std::cout << "mergeSort" << std::endl;
 
-    if (left<right) //граничное условие
+    if (left < right) //граничное условие
     {
-        int middle = (left+right)/2;
+        int middle = (left + right) / 2;
         mergeSort(array, n, left, middle);
-        mergeSort(array, n, middle+1, right);
+        mergeSort(array, n, middle + 1, right);
 
-        int n1 = middle-left+1;
-        int n2 = right-middle;
+        int n1 = middle - left + 1;
+        int n2 = right - middle;
         std::vector<int> tmpLeft;
         std::vector<int> tmpRight;
-        for(int i=0; i<n1; ++i)
+        for(int i = 0; i < n1; ++i)
             tmpLeft.push_back(array[left+i]);
 
-        for(int i=0; i<n2; ++i)
+        for(int i=0; i < n2; ++i)
         {
-            if(middle+i+1 < n)
+            if(middle + i + 1 < n)
                 tmpRight.push_back(array[middle+i+1]);
         }
 
@@ -222,8 +226,9 @@ void mergeSort(int *array, const int n, int left, int right)
         tmpLeft.push_back(100);
         tmpRight.push_back(100);
 
-        int i=0, j=0;
-        for(int k = left; k<=right; ++k)
+        int i = 0;
+        int j = 0;
+        for(int k = left; k <= right; ++k)
         {
             if(tmpLeft[i] <= tmpRight[j])
             {
