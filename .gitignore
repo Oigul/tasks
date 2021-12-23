@@ -1,0 +1,6 @@
+*.pro.user
+*.pro
+*.pro.user.811ff0e
+*.o
+*.exe
+/PitsStops/*Makefile
