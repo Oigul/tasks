@@ -8,7 +8,7 @@ double searchMax(double *pitstops, const int n, int dist);
 
 int main()
 {
-    int dist=0;
+    int dist = 0;
     std::cout << "enter tracker length " << std::endl;
     std::cin >> dist;
     while (dist <= 0)
@@ -17,7 +17,7 @@ int main()
         std::cin >> dist;
     }
 
-    int n=0;
+    int n = 0;
     std::cout << "enter the number of pit stops " << std::endl;
     std::cin >> n;
     while (n <= 0)
@@ -51,7 +51,6 @@ int main()
 
 void printArray(double *array, const int n)
 {
-    //cout << "printArray" << endl;
     for (int i = 0; i < n; ++i)
     {
         std::cout << array[i] << " ";
@@ -74,12 +73,11 @@ void initializationIntervals(double *intervals, double *pitstops, const int n, i
         intervals[i] = pitstops[i+1] - pitstops[i];
     }
     intervals[n-1] = pitstops[0] + dist - pitstops[n-1];
-    //std::cout << std::endl;
 }
 
 double searchMax(double *pitstops, const int n, int dist)
 {
-    if (n>1)
+    if (n > 1)
     {
         double intervals[n-1];
         initializationIntervals(intervals, pitstops, n, dist);
@@ -100,13 +98,12 @@ double searchMax(double *pitstops, const int n, int dist)
 
 void sorting(double *array, const int n)
 {
-    //cout << "sorting" << endl;
-    for(int j = 1; j<n; ++j)
+    for(int j = 1; j < n; ++j)
     {
         double key = array[j];
         int i = j-1;
 
-        while(i>=0 && array[i]>key)
+        while(i >= 0 && array[i] > key)
         {
             array[i+1] = array[i];
             --i;
