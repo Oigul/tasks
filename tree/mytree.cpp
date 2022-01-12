@@ -1,19 +1,23 @@
 #include "mytree.h"
 #include <iostream>
+#include <vector>
 
 MyTree::MyTree()
 {
 }
 
+MyTree::~MyTree()
+{
+    DeleteNodes(root_);
+}
+
 Node* MyTree::DeleteNodes(Node *temp)
 {
-    static Node* nodeUncle = nullptr;
-    static bool nodeUncleTrue = false;
+    static std::vector<Node*> nodesUncle;
 
     if (temp->firstChildren_ && temp->next_)
     {
-        nodeUncleTrue = true;
-        nodeUncle = temp->next_;
+        nodesUncle.push_back(temp->next_);
         Node* tempNext = temp->firstChildren_;
         delete temp;
         return DeleteNodes(tempNext);
@@ -26,17 +30,18 @@ Node* MyTree::DeleteNodes(Node *temp)
     }
     if (temp->next_)
     {
-        Node* tempNext = temp->firstChildren_;
+        Node* tempNext = temp->next_;
         delete temp;
         return DeleteNodes(tempNext);
     }
-    if (nodeUncleTrue)
+    if (nodesUncle.size() > 0)
     {
-        nodeUncleTrue = false;
-        Node* tempNext = temp->firstChildren_;
+        Node* tempNext = nodesUncle[nodesUncle.size()-1];
+        nodesUncle.pop_back();
         delete temp;
         return DeleteNodes(tempNext);
     }
+    delete temp;
 }
 
 void MyTree::pushRoot(int value)
@@ -45,12 +50,11 @@ void MyTree::pushRoot(int value)
     root_ = newNode;
 }
 
-void MyTree::pushChildrenNode(int value, Node *parent)
+void MyTree::pushNode(int value, Node *parent)
 {
     Node *newNode = new Node(value);
     newNode->parent_ = parent;
 
-    //no children
     if (parent->firstChildren_ == nullptr)
     {
         parent->firstChildren_ = newNode;
@@ -69,19 +73,22 @@ void MyTree::pushBrother(Node* newNode, Node* parent)
 
 void MyTree::popChildrenNode(Node *child)
 {
-    //удаление root
     if(child == root_)
     {
         if(root_->firstChildren_)
         {
             Node* firstChild = root_->firstChildren_;
             firstChild->parent_ = nullptr;
-            delete child;
+            delete root_;
             //первый ребенок становится родителем, меняются братья и братья детей
             becomeParentForRoot(firstChild);
         }
+        else
+        {
+            delete root_;
+            root_ = nullptr;
+        }
     }
-    //end root
     else
     {
         //есди просто листок без детей и братьев
@@ -103,10 +110,10 @@ void MyTree::popChildrenNode(Node *child)
             else
             {
                 while (temp->next_ != child)
-                { // the node preceding child
+                {
                     temp = temp->next_;
                 }
-                //иначе находим участок, в котором надо затереть ребенка
+                //находим участок, в котором надо затереть ребенка
                 temp->next_ = child->next_;
             }
             delete child;
@@ -114,89 +121,160 @@ void MyTree::popChildrenNode(Node *child)
         }
         else //есть дети
         {
-            //Первый ребенок становится родителем своим братьям и братом дядям
-            //child->parent_->firstChildren_;
             becomeParentForNode(child->firstChildren_);
         }
-        //        delete child;
     }
 }
 
-Node *MyTree::becomeParentForNode(Node *firstGS)
+void MyTree::becomeParentForNode(Node *firstCh)
 {
+    //У РЕБЕНКА НЕТ ДЕТЕЙ
     //если нет дядь, нет братьев
-    if(firstGS->parent_->next_ == nullptr && firstGS->next_ == nullptr)
+    if(firstCh->parent_->next_ == nullptr && firstCh->next_ == nullptr
+            && firstCh->firstChildren_ == nullptr)
     {
-        Node* temp = firstGS->parent_;
-        firstGS->parent_->parent_->firstChildren_ = firstGS;
-        firstGS->parent_ = firstGS->parent_->parent_;
+        Node* temp = firstCh->parent_;
+        firstCh->parent_->parent_->firstChildren_ = firstCh;
+        firstCh->parent_ = firstCh->parent_->parent_;
         delete temp;
-        //oigul возвращать что-нибудь в это жизни или нет
-        return firstGS;
+        return;
     }
     //есть брат, нет дядь
-    if(firstGS->parent_->next_ == nullptr && firstGS->next_)
+    if(firstCh->parent_->next_ == nullptr && firstCh->next_
+            && firstCh->firstChildren_ == nullptr)
     {
-        Node* temp = firstGS->parent_;
-        firstGS->parent_->parent_->firstChildren_ = firstGS;
-        firstGS->parent_ = firstGS->parent_->parent_;
+        Node* temp = firstCh->parent_;
+        firstCh->parent_->parent_->firstChildren_ = firstCh;
+        firstCh->parent_ = firstCh->parent_->parent_;
         delete temp;
-        firstGS->firstChildren_ = firstGS->next_;
+        firstCh->firstChildren_ = firstCh->next_;
         //cтановится родителем братьям
-        temp = firstGS->firstChildren_;
+        temp = firstCh->firstChildren_;
         while(temp != nullptr)
         {
-            temp->parent_ = firstGS;
+            temp->parent_ = firstCh;
             temp = temp->next_;
         }
-        firstGS->next_ = nullptr;
-        //oigul возвращать что-нибудь в это жизни или нет
-        return firstGS;
+        firstCh->next_ = nullptr;
+        return;
     }
-    //есть 1 брат и дяди
-    if(firstGS->parent_->next_ && firstGS->next_ == nullptr)
+    //есть брат и дяди
+    if(firstCh->parent_->next_ && firstCh->next_ == nullptr
+            && firstCh->firstChildren_ == nullptr)
     {
-        Node* temp = firstGS->parent_;
-        firstGS->parent_->parent_->firstChildren_ = firstGS;
-        firstGS->parent_ = temp->parent_;
-        firstGS->next_ = temp->next_;
+        Node* temp = firstCh->parent_;
+        firstCh->parent_->parent_->firstChildren_ = firstCh;
+        firstCh->parent_ = temp->parent_;
+        firstCh->next_ = temp->next_;
         delete temp;
-        return firstGS;
+        return;
     }
     //есть братья и дяди
-    if(firstGS->parent_->next_ && firstGS->next_)
+    if(firstCh->parent_->next_ && firstCh->next_
+            && firstCh->firstChildren_ == nullptr)
     {
-        Node* temp = firstGS->parent_;
-        firstGS->parent_->parent_->firstChildren_ = firstGS;
-        firstGS->parent_ = temp->parent_;
-        firstGS->firstChildren_ = firstGS->next_;
-        firstGS->next_ = temp->next_;
+        Node* temp = firstCh->parent_;
+        firstCh->parent_->parent_->firstChildren_ = firstCh;
+        firstCh->parent_ = temp->parent_;
+        firstCh->firstChildren_ = firstCh->next_;
+        firstCh->next_ = temp->next_;
         delete temp;
 
         //cтановится родителем братьям
-        temp = firstGS->firstChildren_;
+        temp = firstCh->firstChildren_;
         while(temp != nullptr)
         {
-            temp->parent_ = firstGS;
+            temp->parent_ = firstCh;
+            temp = temp->next_;
+        }
+        return;
+    }
+    //У РЕБЕНКА ЕСТЬ ДЕТИ
+    //у ребенка есть дети, брат, нет дяди
+    if(firstCh->parent_->next_ == nullptr && firstCh->next_
+            && firstCh->firstChildren_)
+    {
+        Node* temp = firstCh->parent_;
+        firstCh->parent_->parent_->firstChildren_ = firstCh;
+        firstCh->parent_ = temp->parent_;
+        delete temp;
+
+        //брат становится братом последнего ребенка
+        temp = firstCh->firstChildren_;
+        while(temp->next_ != nullptr)
+        {
+            temp = temp->next_;
+        }
+        temp->next_ = firstCh->next_;
+
+        //cтановится родителем братьям
+        temp = firstCh->next_;
+        while(temp != nullptr)
+        {
+            temp->parent_ = firstCh;
+            temp = temp->next_;
+        }
+        firstCh->next_ = nullptr;
+        return;
+    }
+    //у ребенка есть дети, братья, дяди
+    if(firstCh->parent_->next_ && firstCh->next_
+            && firstCh->firstChildren_)
+    {
+        Node* temp = firstCh->parent_;
+        firstCh->parent_->parent_->firstChildren_ = firstCh;
+
+        //брат становится братом последнего ребенка
+        temp = firstCh->firstChildren_;
+        while(temp->next_ != nullptr)
+        {
+            temp = temp->next_;
+        }
+        temp->next_ = firstCh->next_;
+
+        //cтановится родителем братьям
+        temp = firstCh->next_;
+        while(temp != nullptr)
+        {
+            temp->parent_ = firstCh;
             temp = temp->next_;
         }
 
-        return firstGS;
+        firstCh->next_ = firstCh->parent_->next_;
+        delete firstCh->parent_;
+        firstCh->parent_ = firstCh->parent_->parent_;
+
+        return;
     }
 }
 
-Node* MyTree::becomeParentForRoot(Node* firstChildren)
+void MyTree::becomeParentForRoot(Node* firstChildren)
 {
-    if(firstChildren->parent_ == nullptr)   //root
+    root_ = firstChildren;
+
+    //если нет ребенка, но есть брат, то брат первого ребенка становится первым ребенком
+    if (firstChildren->firstChildren_ == nullptr && firstChildren->next_)
     {
-        root_ = firstChildren;
+        firstChildren->firstChildren_ = firstChildren->next_;
 
-        //если нет ребенка, но есть брат, то брат первого ребенка становится первым ребенком
-        if (firstChildren->firstChildren_ == nullptr && firstChildren->next_)
+        //новый отец у братьев
+        Node* temp = firstChildren;
+        while(temp->next_ != nullptr)
         {
-            firstChildren->firstChildren_ = firstChildren->next_;
-
-            //новый отец у братьев
+            temp = temp->next_;
+            temp->parent_ = firstChildren;
+        }
+        firstChildren->next_ = nullptr;
+    }
+    else
+    {
+        //есть брат и ребенок, но у ребенка нет братьев
+        if (firstChildren->firstChildren_
+                && firstChildren->firstChildren_->next_ == nullptr
+                && firstChildren->next_)
+        {
+            firstChildren->firstChildren_->next_ = firstChildren->next_;
+            //новый родитель у братьев
             Node* temp = firstChildren;
             while(temp->next_ != nullptr)
             {
@@ -206,13 +284,18 @@ Node* MyTree::becomeParentForRoot(Node* firstChildren)
             firstChildren->next_ = nullptr;
         }
         else
+            //есть брат и ребенок с братьями,
+            //ребенок становится братом брата (дядей), а брат ребенка становится первым ребенком ребенка
         {
-            //есть брат и ребенок, но у ребенка нет братьев
-            if (firstChildren->firstChildren_
-                    && firstChildren->firstChildren_->next_ == nullptr
-                    && firstChildren->next_)
+            if (firstChildren->firstChildren_ && firstChildren->firstChildren_->next_ && firstChildren->next_
+                    && firstChildren->firstChildren_->firstChildren_ == nullptr)
             {
-                firstChildren->firstChildren_->next_ = firstChildren->next_;
+
+                //первым ребенком ребенка становится брат ребенка ребенка
+                firstChildren->firstChildren_->firstChildren_ = firstChildren->firstChildren_->next_;
+                //первый ребенок становится дядей
+                firstChildren->firstChildren_->next_ = firstChildren->next_ ;
+
                 //новый родитель у братьев
                 Node* temp = firstChildren;
                 while(temp->next_ != nullptr)
@@ -221,49 +304,50 @@ Node* MyTree::becomeParentForRoot(Node* firstChildren)
                     temp->parent_ = firstChildren;
                 }
                 firstChildren->next_ = nullptr;
+
+                //новый родитель у внуков
+                temp = firstChildren->firstChildren_->firstChildren_;
+                while(temp != nullptr)
+                {
+                    temp->parent_ = firstChildren->firstChildren_;
+                    temp =  temp->next_;
+                }
+                firstChildren->next_ = nullptr;
             }
             else
-            //есть брат и ребенок с братьями,
-            //ребенок становится братом брата (дядей), а брат ребенка становится первым ребенком ребенка
             {
-                if (firstChildren->firstChildren_ && firstChildren->firstChildren_->next_ && firstChildren->next_)
+                if (firstChildren->firstChildren_ && firstChildren->firstChildren_->next_ && firstChildren->next_
+                        && firstChildren->firstChildren_->firstChildren_)
                 {
+                    root_ = firstChildren;
 
-                    //первым ребенком ребенка становится брат ребенка ребенка
-                    firstChildren->firstChildren_->firstChildren_ = firstChildren->firstChildren_->next_;
-                    //первый ребенок становится дядей
-                    firstChildren->firstChildren_->next_ = firstChildren->next_ ;
-
-                    //новый родитель у братьев
-                    Node* temp = firstChildren;
+                    //брат становится братом последнего ребенка
+                    Node* temp = root_->firstChildren_;
                     while(temp->next_ != nullptr)
                     {
                         temp = temp->next_;
-                        temp->parent_ = firstChildren;
                     }
-                    firstChildren->next_ = nullptr;
+                    temp->next_ = firstChildren->next_;
 
-                    //новый родитель у внуков
-                    temp = firstChildren->firstChildren_->firstChildren_;
+                    //cтановится родителем братьям
+                    temp = firstChildren->next_;
                     while(temp != nullptr)
                     {
-                        temp->parent_ = firstChildren->firstChildren_;
-                        temp =  temp->next_;
+                        temp->parent_ = firstChildren;
+                        temp = temp->next_;
                     }
+
                     firstChildren->next_ = nullptr;
+                    firstChildren->parent_ = nullptr;
                 }
             }
-            //end root children witn brothers
         }
-        //end root children
     }
-    //end root
 }
 
 Node* MyTree::searh(int value, Node* temp)
 {
-    static Node* nodeUncle = nullptr;
-    static bool nodeUncleTrue = false;
+    static std::vector<Node*> nodesUncle;
 
     if (temp->value_ == value)
     {
@@ -271,15 +355,9 @@ Node* MyTree::searh(int value, Node* temp)
         return temp;
     }
 
-    if(temp == root_)
-    {
-        //for a new search
-        nodeUncleTrue = false;
-    }
     if (temp->firstChildren_ && temp->next_)
     {
-        nodeUncleTrue = true;
-        nodeUncle = temp->next_;
+        nodesUncle.push_back(temp->next_);
         return searh(value, temp->firstChildren_);
     }
     if (temp->firstChildren_)
@@ -290,10 +368,11 @@ Node* MyTree::searh(int value, Node* temp)
     {
         return searh(value, temp->next_);
     }
-    if (nodeUncleTrue)
+    if (nodesUncle.size() > 0)
     {
-        nodeUncleTrue = false;
-        return searh(value, nodeUncle);
+        temp = nodesUncle[nodesUncle.size()-1];
+        nodesUncle.pop_back();
+        return searh(value, temp);
     }
     return nullptr;
 }

@@ -1,12 +1,14 @@
 #ifndef MYTREE_H
 #define MYTREE_H
 
+#include <iostream>
 #include <vector>
 
 struct Node
 {
     Node(int value = 0) : value_(value), next_(nullptr),
-        parent_(nullptr), firstChildren_(nullptr) {}
+                          parent_(nullptr), firstChildren_(nullptr) {}
+    ~Node() {std::cout << "~Node " << value_<<std::endl;}
 
     int value_;
     Node* next_;
@@ -18,27 +20,25 @@ class MyTree
 {
 public:
     MyTree();
+    ~MyTree();
 
     Node* DeleteNodes(Node *temp);
 
     void pushRoot(int value);
-    void pushChildrenNode(int value, Node *parent);
+    void pushNode(int value, Node *parent);
     void popChildrenNode(Node *parent);
     Node* searh(int value, Node *temp);
-    Node* becomeParentForRoot(Node *firstChildren); //стать родителем
-    Node* becomeParentForNode(Node *firstGS); //стать родителем
-
-    //oigul оптимизация может с рутом
-    Node* becomeParentOnlyBrother(Node *firstChildren); //стать родителем
-    Node* becomeParentBrotherAndChild(Node *firstChildren); //стать родителем
-    Node* becomeParentBrotherAndChildren (Node *firstChildren); //стать родителем
-
 
     Node* root() const;
 
 private:
-    Node* root_ = nullptr; //корень дерева
+    Node* root_ = nullptr;
     void pushBrother(Node *temp, Node *parent);
+    void becomeParentForRoot(Node *firstChildren);
+    void becomeParentForNode(Node *firstCh);
 };
 
 #endif // MYTREE_H
+
+
+
