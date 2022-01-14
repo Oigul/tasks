@@ -3,20 +3,20 @@
 #include <iostream>
 #include <vector>
 
-#define N 3 //ряды
-#define M 4 //столбцы
+//#define N 3 //ряды
+//#define M 4 //столбцы
 
 //проверки на 0
 //найти деретминат и убедиться, что не вырожденная матрица
 
-void printMatrix(std::vector<std::vector<double>> matrix);
-void initMatrix(std::vector<std::vector<double> > &matrix);
-void enteringEquation(std::vector<std::vector<double> >& matrix);
-void printEquation(std::vector<std::vector<double> >& matrix);
-double forwardStroke(std::vector<std::vector<double> >& matrix);
-void reverse(std::vector<std::vector<double> >& matrix, double* array, int size);
-void columnReverse(std::vector<std::vector<double> >& matrix, int i1, int i2);
-bool check(std::vector<std::vector<double> >& matrix, double* solutionEquation, int size);
+void printMatrix(std::vector<std::vector<double>> matrix, const int N, const int M);
+void initMatrix(std::vector<std::vector<double> > &matrix, const int N, const int M);
+void enteringEquation(std::vector<std::vector<double> >& matrix, const int N, const int M);
+//void printEquation(std::vector<std::vector<double> >& matrix, const int N, const int M);
+double forwardStroke(std::vector<std::vector<double> >& matrix, const int N, const int M);
+void reverse(std::vector<std::vector<double> >& matrix, const int N, const int M, double* array, int size);
+void columnReverse(std::vector<std::vector<double> >& matrix, const int N, const int M, int i1, int i2);
+bool check(std::vector<std::vector<double> >& matrix, const int N, const int M, double* solutionEquation, int size);
 
 void initArray(double* array, int size);
 void printArray(double* array, int size);
@@ -26,17 +26,23 @@ int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
+    int N = 0;
+    std::cout << "Enter the number of equations" << std::endl;
+    while (N==0)
+        std::cin >> N;
+    int M = N+1;
+
     std::vector<std::vector<double>> matrix;
-    initMatrix(matrix);
-    enteringEquation(matrix);
-    printEquation(matrix);
-    //printMatrix(matrix);
+    initMatrix(matrix, N, M);
+    enteringEquation(matrix, N, M);
+    //printEquation(matrix, N, M);
+    printMatrix(matrix, N, M);
 
     int size = M-1;
     double solutionEquation[size];
-    if (forwardStroke(matrix))
+    if (forwardStroke(matrix, N, M))
     {
-        reverse(matrix, solutionEquation, size);
+        reverse(matrix, N, M, solutionEquation, size);
         //printArray(solutionEquation, size);
         printSolution(solutionEquation, size);
     }
@@ -54,10 +60,9 @@ int main(int argc, char *argv[])
     return a.exec();
 }
 
-double forwardStroke(std::vector<std::vector<double> > &matrix)
+double forwardStroke(std::vector<std::vector<double> > &matrix, const int N, const int M)
 {
     double determinant = 1;
-    bool reverse = false;
 
     int u = 0;
     for(int k = 0; k < N-1; ++k)
@@ -83,23 +88,33 @@ double forwardStroke(std::vector<std::vector<double> > &matrix)
                 //если не последняя строка
                 if(k < N-1)
                 {
+                    //ищем следующую строку, которая не начинается с 0 в точку u
                     int i2 = k;
-                    while(matrix[i2][u] == 0 && i2 < N)
+                    while(i2 < N)
                     {
-                        ++i2;
+                        if(matrix[i2][u] != 0)
+                            break;
+                        else
+                            ++i2;
                     }
-                    if(matrix[i2][u])
+                    //если все = 0 - идем дальше
+                    if(i2 == N)
                     {
-                        determinant *= -1;
-                        columnReverse(matrix, k, i2);
-                        printMatrix(matrix);
+                        continue;
                     }
                     else
-                        continue;
+                    {   //меняем местами с другой строкой у которой
+                        if(matrix[i2][u])
+                        {
+                            determinant *= -1;
+                            columnReverse(matrix, N, M, k, i2);
+                            printMatrix(matrix, N, M);
+                        }
+                    }
                 }
                 else
                 {
-                    printMatrix(matrix);
+                    printMatrix(matrix, N, M);
                     break;
                 }
             }
@@ -127,7 +142,7 @@ double forwardStroke(std::vector<std::vector<double> > &matrix)
     return determinant;
 }
 
-void columnReverse(std::vector<std::vector<double> >& matrix, int i1, int i2)
+void columnReverse(std::vector<std::vector<double> >& matrix, const int N, const int M, int i1, int i2)
 {
     std::cout << "columnReverse";
     for(int j = 0; j < M; ++j)
@@ -138,7 +153,7 @@ void columnReverse(std::vector<std::vector<double> >& matrix, int i1, int i2)
     }
 }
 
-void reverse(std::vector<std::vector<double> >& matrix, double *array, int size)
+void reverse(std::vector<std::vector<double> >& matrix, const int N, const int M, double *array, int size)
 {
     int variable = size-1; //номер элемента массива, в котором хранится текущая искомая переменная
     initArray(array, size);
@@ -160,7 +175,7 @@ void reverse(std::vector<std::vector<double> >& matrix, double *array, int size)
     }
 }
 
-void printMatrix(std::vector<std::vector<double> > matrix)
+void printMatrix(std::vector<std::vector<double> > matrix, const int N, const int M)
 {
     std::cout << std::endl;
     for(int i = 0; i < N; ++i)
@@ -173,7 +188,7 @@ void printMatrix(std::vector<std::vector<double> > matrix)
     }
 }
 
-void initMatrix(std::vector<std::vector<double> > &matrix)
+void initMatrix(std::vector<std::vector<double> > &matrix, const int N, const int M)
 {
     std::vector<double> row(M);
     for (int i = 0; i < N; ++i)
@@ -182,9 +197,9 @@ void initMatrix(std::vector<std::vector<double> > &matrix)
     }
 }
 
-void enteringEquation(std::vector<std::vector<double> >& matrix)
+void enteringEquation(std::vector<std::vector<double> >& matrix, const int N, const int M)
 {
-    int value;
+    /*int value;
 
     for(int i = 0; i < N; ++i)
     {
@@ -215,10 +230,29 @@ void enteringEquation(std::vector<std::vector<double> >& matrix)
         std::cout << "enter the result of the equation " <<std::endl;
         std::cin >> value;
         matrix[i][M-1] = value;
+    }*/
+
+    int value;
+
+    for(int i = 0; i < N; ++i)
+    {
+
+        std::cout << i << " input of coefficients " << std::endl;
+
+        for(int j = 0; j < M-1; ++j)
+        {
+            std::cout << j << " enter coefficient " << std::endl;
+            std::cin >> value;
+            matrix[i][j] = value;
+        }
+
+        std::cout << "enter the result of the equation " <<std::endl;
+        std::cin >> value;
+        matrix[i][M-1] = value;
     }
 }
 
-void printEquation(std::vector<std::vector<double> > &matrix)
+void printEquation(std::vector<std::vector<double> > &matrix, const int N, const int M)
 {
     std::cout << std::endl;
 
@@ -247,15 +281,13 @@ void printEquation(std::vector<std::vector<double> > &matrix)
         std::cout << matrix[i][M-1];
         std::cout << std::endl;
     }
-
 }
 
 void printSolution(double* array, int size)
 {
-
     std::cout << std::endl << "solution of the equation:"<<std::endl;
 
-    auto  textCoefficients
+    /*auto  textCoefficients
     {
         [](int j)
         {
@@ -267,8 +299,13 @@ void printSolution(double* array, int size)
     {
 
         std::cout << textCoefficients(i) << array[i] << std::endl;
-    }
+    }*/
 
+    for(int i = 0; i < size; ++i)
+    {
+
+        std::cout << array[i] << std::endl;
+    }
 }
 
 void initArray(double* array, int size)
@@ -287,7 +324,7 @@ void printArray(double* array, int size)
     }
 }
 
-bool check(std::vector<std::vector<double> >& matrix, double* solutionEquation, int size)
+bool check(std::vector<std::vector<double> >& matrix, const int N, const int M, double* solutionEquation, int size)
 {
     double sum[size];
 
@@ -306,5 +343,4 @@ bool check(std::vector<std::vector<double> >& matrix, double* solutionEquation, 
             return false;
     }
     return true;
-
 }
