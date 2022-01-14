@@ -15,6 +15,8 @@ void enteringEquation(std::vector<std::vector<double> >& matrix);
 void printEquation(std::vector<std::vector<double> >& matrix);
 double forwardStroke(std::vector<std::vector<double> >& matrix);
 void reverse(std::vector<std::vector<double> >& matrix, double* array, int size);
+void columnReverse(std::vector<std::vector<double> >& matrix, int i1, int i2);
+bool check(std::vector<std::vector<double> >& matrix, double* solutionEquation, int size);
 
 void initArray(double* array, int size);
 void printArray(double* array, int size);
@@ -40,9 +42,14 @@ int main(int argc, char *argv[])
     }
     else
     {
-        std::cout << "Systems of equations with a degenerate matrix of coefficients:с" << std::endl;
+        std::cout << "Systems of equations with a degenerate matrix of coefficients :c" << std::endl;
     }
 
+    //не работает из-за округления
+//    if(check(matrix, solutionEquation, size))
+//        std::cout << "true" << std::endl;
+//    else
+//        std::cout << "false" << std::endl;
 
     return a.exec();
 }
@@ -50,15 +57,56 @@ int main(int argc, char *argv[])
 double forwardStroke(std::vector<std::vector<double> > &matrix)
 {
     double determinant = 1;
+    bool reverse = false;
 
     int u = 0;
     for(int k = 0; k < N-1; ++k)
     {
-        //std::cout << k << std::endl;
+//        std::cout << "k" << k << std::endl;
+        //проверка, что строка не состоит вся из 0
+        int j2 = u;
+        int j3 = u;
+        while(j2 < N-1)
+        {
+            ++j2;
+            if(matrix[k][j2] == 0)
+            {
+                ++j3;
+            }
+        }
 
+        if (matrix[k][u] == 0 && j2==j3) //матрица вырожденная, строка вся из 0
+                return 0;
+        else
+            if (matrix[k][u] == 0)
+            {
+                //если не последняя строка
+                if(k < N-1)
+                {
+                    int i2 = k;
+                    while(matrix[i2][u] == 0 && i2 < N)
+                    {
+                        ++i2;
+                    }
+                    if(matrix[i2][u])
+                    {
+                        determinant *= -1;
+                        columnReverse(matrix, k, i2);
+                        printMatrix(matrix);
+                    }
+                    else
+                        continue;
+                }
+                else
+                {
+                    printMatrix(matrix);
+                    break;
+                }
+            }
+
+        //если u элемент не 0
         for(int i = 1+k; i < N; ++i)
         {
-            //проверку на 0
             double factor = -matrix[i][u]/matrix[k][u];
             //std::cout << factor << std::endl;
             for(int j = 0; j < M; ++j)
@@ -66,7 +114,7 @@ double forwardStroke(std::vector<std::vector<double> > &matrix)
                 matrix[i][j] = matrix[k][j]*factor+matrix[i][j];
             }
         }
-        printMatrix(matrix);
+//        printMatrix(matrix);
         ++u;
     }
 
@@ -77,6 +125,17 @@ double forwardStroke(std::vector<std::vector<double> > &matrix)
     std::cout << std::endl << "determinant = " << determinant << std::endl;
 
     return determinant;
+}
+
+void columnReverse(std::vector<std::vector<double> >& matrix, int i1, int i2)
+{
+    std::cout << "columnReverse";
+    for(int j = 0; j < M; ++j)
+    {
+        double value = matrix[i1][j];
+        matrix[i1][j] = matrix[i2][j];
+        matrix[i2][j] = value;
+    }
 }
 
 void reverse(std::vector<std::vector<double> >& matrix, double *array, int size)
@@ -226,4 +285,26 @@ void printArray(double* array, int size)
     {
         std::cout << std::endl << array[i] << std::endl;
     }
+}
+
+bool check(std::vector<std::vector<double> >& matrix, double* solutionEquation, int size)
+{
+    double sum[size];
+
+    for(int i = 0; i < N; ++i)
+    {
+        sum[i] = 0;
+        for(int j = 0; j < M-1; ++j)
+        {
+            sum[i] += matrix[i][j]*solutionEquation[j];
+        }
+    }
+
+    for(int i = 0; i < N; ++i)
+    {
+        if(sum[i] != matrix[i][M-1])
+            return false;
+    }
+    return true;
+
 }
