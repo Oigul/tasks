@@ -3,16 +3,10 @@
 #include <iostream>
 #include <vector>
 
-//#define N 3 //ряды
-//#define M 4 //столбцы
-
-//проверки на 0
-//найти деретминат и убедиться, что не вырожденная матрица
-
 void printMatrix(std::vector<std::vector<double>> matrix, const int N, const int M);
 void initMatrix(std::vector<std::vector<double> > &matrix, const int N, const int M);
 void enteringEquation(std::vector<std::vector<double> >& matrix, const int N, const int M);
-//void printEquation(std::vector<std::vector<double> >& matrix, const int N, const int M);
+void printEquation(std::vector<std::vector<double> >& matrix, const int N, const int M);
 double forwardStroke(std::vector<std::vector<double> >& matrix, const int N, const int M);
 void reverse(std::vector<std::vector<double> >& matrix, const int N, const int M, double* array, int size);
 void columnReverse(std::vector<std::vector<double> >& matrix, const int N, const int M, int i1, int i2);
@@ -35,7 +29,7 @@ int main(int argc, char *argv[])
     std::vector<std::vector<double>> matrix;
     initMatrix(matrix, N, M);
     enteringEquation(matrix, N, M);
-    //printEquation(matrix, N, M);
+    printEquation(matrix, N, M);
     printMatrix(matrix, N, M);
 
     int size = M-1;
@@ -43,12 +37,11 @@ int main(int argc, char *argv[])
     if (forwardStroke(matrix, N, M))
     {
         reverse(matrix, N, M, solutionEquation, size);
-        //printArray(solutionEquation, size);
         printSolution(solutionEquation, size);
     }
     else
     {
-        std::cout << "Systems of equations with a degenerate matrix of coefficients :c" << std::endl;
+        std::cout << "Systems of equations with a degenerate matrix of coefficients" << std::endl;
     }
 
     //не работает из-за округления
@@ -67,7 +60,6 @@ double forwardStroke(std::vector<std::vector<double> > &matrix, const int N, con
     int u = 0;
     for(int k = 0; k < N-1; ++k)
     {
-//        std::cout << "k" << k << std::endl;
         //проверка, что строка не состоит вся из 0
         int j2 = u;
         int j3 = u;
@@ -103,12 +95,12 @@ double forwardStroke(std::vector<std::vector<double> > &matrix, const int N, con
                         continue;
                     }
                     else
-                    {   //меняем местами с другой строкой у которой
+                    {   //меняем местами с другой строкой у которая не начинается с 0
                         if(matrix[i2][u])
                         {
                             determinant *= -1;
                             columnReverse(matrix, N, M, k, i2);
-                            printMatrix(matrix, N, M);
+//                            printMatrix(matrix, N, M);
                         }
                     }
                 }
@@ -123,7 +115,6 @@ double forwardStroke(std::vector<std::vector<double> > &matrix, const int N, con
         for(int i = 1+k; i < N; ++i)
         {
             double factor = -matrix[i][u]/matrix[k][u];
-            //std::cout << factor << std::endl;
             for(int j = 0; j < M; ++j)
             {
                 matrix[i][j] = matrix[k][j]*factor+matrix[i][j];
@@ -144,7 +135,7 @@ double forwardStroke(std::vector<std::vector<double> > &matrix, const int N, con
 
 void columnReverse(std::vector<std::vector<double> >& matrix, const int N, const int M, int i1, int i2)
 {
-    std::cout << "columnReverse";
+    //std::cout << "columnReverse";
     for(int j = 0; j < M; ++j)
     {
         double value = matrix[i1][j];
@@ -166,10 +157,7 @@ void reverse(std::vector<std::vector<double> >& matrix, const int N, const int M
         {
             rowSum += matrix[i][j]*array[j];
         }
-//        std::cout << std::endl << "variable = "<< variable << std::endl;
-//        std::cout << std::endl << "rowSum = "<< rowSum << std::endl;
         array[variable] = (matrix[i][M-1] - rowSum)/matrix[i][variable];
-//        std::cout << std::endl << array[variable] << std::endl;
         --variable;
         array[variable] = 0; //следующая искомая переменная
     }
@@ -193,55 +181,21 @@ void initMatrix(std::vector<std::vector<double> > &matrix, const int N, const in
     std::vector<double> row(M);
     for (int i = 0; i < N; ++i)
     {
-        matrix.push_back(row); //3 ряда по 4
+        matrix.push_back(row); //N рядов по M
     }
 }
 
 void enteringEquation(std::vector<std::vector<double> >& matrix, const int N, const int M)
 {
-    /*int value;
-
-    for(int i = 0; i < N; ++i)
-    {
-        auto  text
-        {
-            [](int i)
-            {
-                return ((i == 0) ? "first" : ((i == 1) ? "second" : "third"));
-            }
-        };
-        std::cout << "input of coefficients of the " << text(i) << " equation" <<std::endl;
-
-        for(int j = 0; j < M-1; ++j)
-        {
-            auto  textCoefficients
-            {
-                [](int j)
-                {
-                    return ((j == 0) ? "x" : ((j == 1) ? "y" : "z"));
-                }
-            };
-
-            std::cout << "enter coefficient before " << textCoefficients(j) <<std::endl;
-            std::cin >> value;
-            matrix[i][j] = value;
-        }
-
-        std::cout << "enter the result of the equation " <<std::endl;
-        std::cin >> value;
-        matrix[i][M-1] = value;
-    }*/
-
     int value;
 
     for(int i = 0; i < N; ++i)
     {
-
-        std::cout << i << " input of coefficients " << std::endl;
+        std::cout << "input of coefficients of the " << i+1 << " equation" <<std::endl;
 
         for(int j = 0; j < M-1; ++j)
         {
-            std::cout << j << " enter coefficient " << std::endl;
+            std::cout << "enter " << j+1 << " coefficient" <<std::endl;
             std::cin >> value;
             matrix[i][j] = value;
         }
@@ -256,19 +210,11 @@ void printEquation(std::vector<std::vector<double> > &matrix, const int N, const
 {
     std::cout << std::endl;
 
-    auto  textCoefficients
-    {
-        [](int j)
-        {
-            return ((j == 0) ? "x" : ((j == 1) ? "y" : "z"));
-        }
-    };
-
     auto  textSign
     {
-        [](int j)
+        [](int j, const int M)
         {
-            return ((j == 2) ? "=" : "+" );
+            return ((j == (M-2)) ? " = " : " + " );
         }
     };
 
@@ -276,7 +222,7 @@ void printEquation(std::vector<std::vector<double> > &matrix, const int N, const
     {
         for(int j = 0; j < M-1; ++j)
         {
-            std::cout << matrix[i][j] << textCoefficients(j) << textSign(j);
+            std::cout << matrix[i][j] << "*x" << i+1 << textSign(j, M);
         }
         std::cout << matrix[i][M-1];
         std::cout << std::endl;
@@ -287,24 +233,10 @@ void printSolution(double* array, int size)
 {
     std::cout << std::endl << "solution of the equation:"<<std::endl;
 
-    /*auto  textCoefficients
-    {
-        [](int j)
-        {
-            return ((j == 0) ? "x = " : ((j == 1) ? "y  = " : "z  = "));
-        }
-    };
-
     for(int i = 0; i < size; ++i)
     {
 
-        std::cout << textCoefficients(i) << array[i] << std::endl;
-    }*/
-
-    for(int i = 0; i < size; ++i)
-    {
-
-        std::cout << array[i] << std::endl;
+        std::cout << "x" << i+1 << " = " << array[i] << std::endl;
     }
 }
 
