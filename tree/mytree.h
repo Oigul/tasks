@@ -28,14 +28,16 @@ public:
     void pushNode(int value, Node *parent);
     void popChildrenNode(Node *parent);
     Node* searh(int value, Node *temp);
+    void print();
 
-    Node* root() const;
+    Node *root() const;
 
 private:
     Node* root_ = nullptr;
     void pushBrother(Node *temp, Node *parent);
     void becomeParentForRoot(Node *firstChildren);
     void becomeParentForNode(Node *firstCh);
+    Node *print(Node *temp);
 };
 
 #endif // MYTREE_H

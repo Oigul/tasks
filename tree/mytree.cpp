@@ -1,4 +1,7 @@
 #include "mytree.h"
+
+#include <QString>
+
 #include <iostream>
 #include <vector>
 
@@ -375,6 +378,44 @@ Node* MyTree::searh(int value, Node* temp)
         return searh(value, temp);
     }
     return nullptr;
+}
+
+void MyTree::print()
+{
+    print(root_);
+}
+
+Node *MyTree::print(Node *temp)
+{
+    static std::vector<Node*> nodesUncle;
+
+    auto  text
+    {
+        [](Node *temp)
+        {
+            return ((temp != nullptr) ? QString::number(temp->value_):QString::fromStdString( "-"));
+        }
+    };
+
+    std::cout << temp->value_
+              << " p " << text(temp->parent_).toStdString()
+              << " n " << text(temp->next_).toStdString()
+              << " fch " << text(temp->firstChildren_).toStdString() << std::endl;
+    if (temp->firstChildren_ && temp->next_)
+    {
+        nodesUncle.push_back(temp->next_);
+        return print(temp->firstChildren_);
+    }
+    if (temp->firstChildren_)
+        return print(temp->firstChildren_);
+    if (temp->next_)
+        return print(temp->next_);
+    if (nodesUncle.size() > 0)
+    {
+        temp = nodesUncle[nodesUncle.size()-1];
+        nodesUncle.pop_back();
+        return print(temp);
+    }
 }
 
 Node *MyTree::root() const

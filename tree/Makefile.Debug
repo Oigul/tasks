@@ -180,7 +180,39 @@ debug/main.o: main.cpp ../../../../Qt/5.14.2/mingw73_64/include/QtCore/QCoreAppl
 		mytree.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug/main.o main.cpp
 
-debug/mytree.o: mytree.cpp mytree.h
+debug/mytree.o: mytree.cpp mytree.h \
+		../../../../Qt/5.14.2/mingw73_64/include/QtCore/QString \
+		../../../../Qt/5.14.2/mingw73_64/include/QtCore/qstring.h \
+		../../../../Qt/5.14.2/mingw73_64/include/QtCore/qchar.h \
+		../../../../Qt/5.14.2/mingw73_64/include/QtCore/qglobal.h \
+		../../../../Qt/5.14.2/mingw73_64/include/QtCore/qconfig-bootstrapped.h \
+		../../../../Qt/5.14.2/mingw73_64/include/QtCore/qconfig.h \
+		../../../../Qt/5.14.2/mingw73_64/include/QtCore/qtcore-config.h \
+		../../../../Qt/5.14.2/mingw73_64/include/QtCore/qsystemdetection.h \
+		../../../../Qt/5.14.2/mingw73_64/include/QtCore/qprocessordetection.h \
+		../../../../Qt/5.14.2/mingw73_64/include/QtCore/qcompilerdetection.h \
+		../../../../Qt/5.14.2/mingw73_64/include/QtCore/qtypeinfo.h \
+		../../../../Qt/5.14.2/mingw73_64/include/QtCore/qsysinfo.h \
+		../../../../Qt/5.14.2/mingw73_64/include/QtCore/qlogging.h \
+		../../../../Qt/5.14.2/mingw73_64/include/QtCore/qflags.h \
+		../../../../Qt/5.14.2/mingw73_64/include/QtCore/qatomic.h \
+		../../../../Qt/5.14.2/mingw73_64/include/QtCore/qbasicatomic.h \
+		../../../../Qt/5.14.2/mingw73_64/include/QtCore/qatomic_bootstrap.h \
+		../../../../Qt/5.14.2/mingw73_64/include/QtCore/qgenericatomic.h \
+		../../../../Qt/5.14.2/mingw73_64/include/QtCore/qatomic_cxx11.h \
+		../../../../Qt/5.14.2/mingw73_64/include/QtCore/qatomic_msvc.h \
+		../../../../Qt/5.14.2/mingw73_64/include/QtCore/qglobalstatic.h \
+		../../../../Qt/5.14.2/mingw73_64/include/QtCore/qmutex.h \
+		../../../../Qt/5.14.2/mingw73_64/include/QtCore/qnumeric.h \
+		../../../../Qt/5.14.2/mingw73_64/include/QtCore/qversiontagging.h \
+		../../../../Qt/5.14.2/mingw73_64/include/QtCore/qbytearray.h \
+		../../../../Qt/5.14.2/mingw73_64/include/QtCore/qrefcount.h \
+		../../../../Qt/5.14.2/mingw73_64/include/QtCore/qnamespace.h \
+		../../../../Qt/5.14.2/mingw73_64/include/QtCore/qarraydata.h \
+		../../../../Qt/5.14.2/mingw73_64/include/QtCore/qstringliteral.h \
+		../../../../Qt/5.14.2/mingw73_64/include/QtCore/qstringalgorithms.h \
+		../../../../Qt/5.14.2/mingw73_64/include/QtCore/qstringview.h \
+		../../../../Qt/5.14.2/mingw73_64/include/QtCore/qstringbuilder.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug/mytree.o mytree.cpp
 
 ####### Install
