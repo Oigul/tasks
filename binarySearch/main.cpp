@@ -6,15 +6,9 @@
 #include <iostream>
 
 //вопросы
-//в if всегда -1 (41 строка)
+//всегда 1 передается в main (строка 39), даже если binarySearch передает другое число
 
-int binarySearch(QFile& file, double requiredNumber, int begin, int finish);
-
-int fun()
-{
-    std::cout << "\noigul test return 1234" << std::endl;
-    return 1234;
-}
+int binarySearch(QTextStream &in, double requiredNumber, int begin, int finish);
 
 int main(int argc, char *argv[])
 {
@@ -23,80 +17,82 @@ int main(int argc, char *argv[])
     QString pathToFile = "C:\\trash\\dataset_sorted.csv";
     QFile file(pathToFile);
 
+    int requiredNumberIndex;
     double requiredNumber;
     std::cout << "enter the required number " << std::endl;
     std::cin >> requiredNumber;
-    int requiredNumberIndex;
-    int fileSize = 0;
 
-    //oigul test
-    int c;
+    int line_count = 0;
+    QString maxLinesNumber;
+    file.open(QIODevice::ReadOnly);
 
-    std::cout << std::endl << "expectation" << std::endl;
-    if ((file.exists())&&(file.open(QIODevice::ReadOnly)))
+    QTextStream in(&file);
+    maxLinesNumber = in.readLine();
+    while(!maxLinesNumber.isNull())
     {
-        QString maxNumber;
-        while (!file.atEnd())
-        {
-            maxNumber = file.readLine();
-            ++fileSize;
-        }
-        //std::cout << "maxNumber =" << maxNumber.toStdString() << std::endl;
-        std::cout << "fileSize =" << fileSize << std::endl;
+        line_count++;
+        maxLinesNumber = in.readLine();
+    }
+    std::cout << "line_count = " << line_count << std::endl;
 
-        std::cout << std::endl << "expectation" << std::endl;
-        file.close();
+    in.seek(0);
+    requiredNumberIndex = binarySearch(in, requiredNumber, 0, line_count-1);
+    std::cout << "oigul!!! requiredNumberIndex = " << requiredNumberIndex << std::endl;
+    file.close();
 
-        if ((file.exists())&&(file.open(QIODevice::ReadOnly)))
-        {
-            requiredNumberIndex = binarySearch(file, requiredNumber, 0, fileSize);
-            std::cout << "requiredNumberIndex in if = " << requiredNumberIndex << std::endl;
-
-            c = fun();
-            std::cout << "oigul test c = " << c << std::endl;
-        }
-
-        if(requiredNumberIndex >= 0)
-        {
-            std::cout << "\nthere is the number in the array\n";
-            std::cout << "requiredNumberIndex = " << requiredNumberIndex << " \n";
-        }
-        else
-        {
-            std::cout << "there is not the number in the array" << std::endl;
-        }
+    if(requiredNumberIndex >= 0)
+    {
+        std::cout << "\nthere is the number in the array\n";
+    }
+    else
+    {
+        std::cout << "\nthere is not the number in the array" << std::endl;
     }
 
     return a.exec();
 }
 
-int binarySearch(QFile &file, double requiredNumber, int begin, int finish)
+int binarySearch(QTextStream &in, double requiredNumber, int begin, int finish)
 {
-    int middle = (begin+finish)/2;
     static bool left = true;
 
-    std::cout << "middleIndex " << middle;
+    if (begin > finish)
+    {
+        std::cout << "oigul!!! return -1" << " \n";
+        return -1;
+    }
+
+    int middle = (begin+finish)/2;
+    std::cout <<"begin " << begin << " finish " << finish << " middleIndex " << middle;
 
     //переход на нужную строку
-    if (left)
+    if(left)
     {
-        for(int i = 0; i < middle-1; ++i)
+        for(int i = 0; i < middle; ++i)
         {
-            file.readLine();
+            in.readLine();
         }
     }
     else
     {
-        for(int i = begin; i <= middle-1; ++i)
+        for(int i = begin; i < middle; ++i)
         {
-            QString forStr=file.readLine();
+            in.readLine();
         }
-
     }
 
+    /*QString value = "";
+    QString str = in.read(0);
+    while(!str.isNull() && (str == '.' || (str >= '0' && str <= '9')))
+    {
+        value += str;
+        str = in.read(0);
+    }
+    double middleValue = str.toDouble();
+    std::cout << " middleValue " << middleValue << std::endl;*/
+
     //чтение средней строки и выделение из нее числа
-    QString str=file.readLine();
-    double middleValue;
+    QString str = in.readLine();
     QString::iterator s = str.begin();
     while (*s == '.' || (*s >= '0' && *s <= '9'))
     {
@@ -107,32 +103,32 @@ int binarySearch(QFile &file, double requiredNumber, int begin, int finish)
         *s = ' ';
         ++s;
     }
+    double middleValue;
     middleValue = str.toDouble();
     std::cout << " middleValue " << middleValue << std::endl;
 
     //сравнение среднего числа с искомым числом
     if (middleValue == requiredNumber)
     {
-        std::cout << "return " << middle << " \n";
+        std::cout << "oigul!!! return " << middle << " \n";
         return middle;
     }
 
-    if (begin >= finish)
+    if (begin == finish)
     {
-        std::cout << "return -1" << " \n";
+        std::cout << "oigul!!! return -1" << " \n";
         return -1;
     }
 
     if (requiredNumber < middleValue)
     {
         left = true;
-        file.close();
-        if ((file.exists())&&(file.open(QIODevice::ReadOnly)))
-            binarySearch(file, requiredNumber, begin, middle-1);
+        in.seek(0);
+        binarySearch(in, requiredNumber, begin, middle-1);
     }
-        else
+    else
     {
         left = false;
-        binarySearch(file, requiredNumber, middle+1, finish);
+        binarySearch(in, requiredNumber, middle+1, finish);
     }
 }
